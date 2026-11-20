@@ -11,7 +11,7 @@ export const AddProjectPage = () => {
   const navigate = useNavigate();
   const { addProject } = useProjects();
   const [formData, setFormData] = useState({
-    name: '', sector: '', location: '', fundingType: 'Government' as FundingType,
+    name: '', launchDate: '', sector: '', location: '', fundingType: 'Government' as FundingType,
     funder: '', contractor: '', valueKES: '', paidKES: '',
     status: 'On track' as ProjectStatus, note: '', sources: ''
   });
@@ -30,6 +30,7 @@ export const AddProjectPage = () => {
 
     addProject({
       name: formData.name.trim(),
+      launchDate: formData.launchDate || undefined,
       sector: formData.sector,
       location: formData.location.trim(),
       fundingType: formData.fundingType,
@@ -58,6 +59,7 @@ export const AddProjectPage = () => {
         <CardContent>
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input label="Project name" value={formData.name} onChange={event => setFormData({ ...formData, name: event.target.value })} error={errors.name} />
+            <Input label="Launch date (optional)" type="date" value={formData.launchDate} onChange={event => setFormData({ ...formData, launchDate: event.target.value })} />
             <Select label="Sector" value={formData.sector} onChange={event => setFormData({ ...formData, sector: event.target.value })} error={errors.sector} placeholder="Select sector" options={['Water', 'Health', 'Education', 'Transport'].map(sector => ({ value: sector, label: sector }))} />
             <Input label="Location" value={formData.location} onChange={event => setFormData({ ...formData, location: event.target.value })} error={errors.location} />
             <Select label="Funding type" value={formData.fundingType} onChange={event => setFormData({ ...formData, fundingType: event.target.value as FundingType })} options={FUNDING_TYPES.map(type => ({ value: type, label: type }))} />

@@ -6,7 +6,7 @@ export const Footer = () => (
           Compiled from public news, government and audit reports. Not verified against official project records.
         </p>
         <p className="text-center sm:text-right">
-          Citizen reports are unverified until reviewed.
+          Member project submissions are unverified until reviewed by oversight.
         </p>
       </div>
       <p className="mt-3 text-center text-xs text-gray-400">

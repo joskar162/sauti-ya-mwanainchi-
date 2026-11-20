@@ -9,6 +9,8 @@ export type UrgencyLevel = 'Low' | 'Medium' | 'High' | 'Critical';
 export interface Project {
   id: string;
   name: string;
+  launchDate?: string;
+  coordinates?: GeoCoordinates;
   sector: string;
   location: string;
   fundingType: FundingType;
@@ -19,6 +21,11 @@ export interface Project {
   status: ProjectStatus;
   note: string;
   sources: string[];
+}
+
+export interface GeoCoordinates {
+  latitude: number;
+  longitude: number;
 }
 
 export interface CommunityNeed {
@@ -36,9 +43,14 @@ export interface CommunityNeed {
 
 export interface CitizenReport {
   id: string;
-  type: 'project-issue' | 'community-need';
+  type: 'project-issue' | 'community-need' | 'project-launch' | 'project-update';
   projectId?: string;
   projectName?: string;
+  projectSubmission?: Omit<Project, 'id'>;
+  reportedStatus?: ProjectStatus;
+  reportedPaidKES?: number;
+  evidence?: string[];
+  coordinates?: GeoCoordinates;
   title: string;
   issueType?: IssueType;
   category?: NeedCategory;

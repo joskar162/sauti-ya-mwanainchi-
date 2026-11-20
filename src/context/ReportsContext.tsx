@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { createContext, useContext, useState, type ReactNode } from 'react';
 import type { CitizenReport } from '@/types';
 
 interface ReportsContextType {
@@ -36,9 +36,15 @@ export const ReportsProvider = ({ children }: { children: ReactNode }) => {
     return [];
   });
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(reports));
-  }, [reports]);
+  const saveReports = (nextReports: CitizenReport[]) => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(nextReports));
+    } catch (error) {
+      console.error('Could not save project reports in browser storage:', error);
+      throw new Error('Could not save this submission. Browser storage may be full; remove photos from this submission and try again.');
+    }
+    setReports(nextReports);
+  };
 
   const addReport = (reportData: Omit<CitizenReport, 'id' | 'submittedAt' | 'referenceNumber' | 'status'>) => {
     const newReport: CitizenReport = {
@@ -48,12 +54,12 @@ export const ReportsProvider = ({ children }: { children: ReactNode }) => {
       referenceNumber: generateReferenceNumber(),
       status: 'New'
     };
-    setReports(prev => [newReport, ...prev]);
+    saveReports([newReport, ...reports]);
     return newReport;
   };
 
   const updateReportStatus = (id: string, status: CitizenReport['status'], response?: string, reviewedBy?: string) => {
-    setReports(prev => prev.map(r => {
+    saveReports(reports.map(r => {
       if (r.id === id) {
         return {
           ...r,

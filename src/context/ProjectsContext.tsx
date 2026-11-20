@@ -5,6 +5,7 @@ import type { Project } from '@/types';
 interface ProjectsContextType {
   projects: Project[];
   addProject: (project: Omit<Project, 'id'>) => Project;
+  updateProject: (id: string, updates: Partial<Omit<Project, 'id'>>) => boolean;
 }
 
 const ProjectsContext = createContext<ProjectsContextType | undefined>(undefined);
@@ -36,8 +37,16 @@ export const ProjectsProvider = ({ children }: { children: ReactNode }) => {
     return project;
   };
 
+  const updateProject = (id: string, updates: Partial<Omit<Project, 'id'>>) => {
+    if (!projects.some(project => project.id === id)) return false;
+    setProjects(previous => previous.map(project => (
+      project.id === id ? { ...project, ...updates } : project
+    )));
+    return true;
+  };
+
   return (
-    <ProjectsContext.Provider value={{ projects, addProject }}>
+    <ProjectsContext.Provider value={{ projects, addProject, updateProject }}>
       {children}
     </ProjectsContext.Provider>
   );

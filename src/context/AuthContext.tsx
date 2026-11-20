@@ -6,11 +6,11 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut,
+  updateProfile,
   type User as FirebaseUser
 } from 'firebase/auth';
-import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import type { User } from '@/types';
-import { firebaseAuth, firestore, requireFirebase } from '@/lib/firebase';
+import { firebaseAuth, requireFirebaseAuth } from '@/lib/firebase';
 
 export interface OversightRegistration {
   name: string;
@@ -33,7 +33,7 @@ interface AuthContextType {
   logout: () => void;
 }
 
-interface AccountRequest {
+interface OversightAccount {
   uid: string;
   name: string;
   email: string;
@@ -41,11 +41,13 @@ interface AccountRequest {
   organizationType: OversightRegistration['organizationType'];
   county: string;
   role: 'oversight';
-  approvalStatus: 'pending' | 'approved' | 'rejected';
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const STORAGE_KEY = 'build-kenya-user';
+const OVERSIGHT_PROFILE_KEY_PREFIX = 'build-kenya-oversight-profile:';
+
+const oversightProfileKey = (uid: string) => `${OVERSIGHT_PROFILE_KEY_PREFIX}${uid}`;
 
 const readCitizenSession = (): User | null => {
   const stored = localStorage.getItem(STORAGE_KEY);
@@ -69,14 +71,13 @@ const firebaseErrorMessage = (error: unknown): string => {
     }
     if (code === 'auth/email-already-in-use') return 'An account already exists for this email.';
     if (code === 'auth/weak-password') return 'Use a stronger password for your account.';
-    if (code === 'permission-denied') return 'Firestore denied this request. Check that the supplied Firestore rules are deployed.';
     if (code === 'auth/too-many-requests') return 'Too many sign-in attempts. Wait a while and try again.';
   }
   if (error instanceof Error) return error.message;
   return 'The Firebase request could not be completed.';
 };
 
-const accountRequestFrom = (firebaseUser: FirebaseUser, record: AccountRequest): User => ({
+const oversightAccountFrom = (firebaseUser: FirebaseUser, record: OversightAccount): User => ({
   id: firebaseUser.uid,
   name: record.name,
   email: record.email,
@@ -86,23 +87,45 @@ const accountRequestFrom = (firebaseUser: FirebaseUser, record: AccountRequest):
   county: record.county
 });
 
-const readApprovedAccount = async (firebaseUser: FirebaseUser): Promise<User> => {
-  const { db } = requireFirebase();
-  const accountSnapshot = await getDoc(doc(db, 'accountRequests', firebaseUser.uid));
-  if (!accountSnapshot.exists()) {
-    throw new Error('No oversight access request was found for this Firebase account.');
+const isOversightAccount = (value: unknown): value is OversightAccount => {
+  if (typeof value !== 'object' || value === null) return false;
+  const record = value as Record<string, unknown>;
+  return typeof record.uid === 'string'
+    && typeof record.name === 'string'
+    && typeof record.email === 'string'
+    && typeof record.organization === 'string'
+    && (record.organizationType === 'NGO' || record.organizationType === 'Supervisor' || record.organizationType === 'Auditor-General')
+    && typeof record.county === 'string'
+    && record.role === 'oversight';
+};
+
+const readOversightAccount = (firebaseUser: FirebaseUser): User => {
+  const key = oversightProfileKey(firebaseUser.uid);
+  const stored = localStorage.getItem(key);
+  if (!stored) {
+    const account: OversightAccount = {
+      uid: firebaseUser.uid,
+      name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Funder',
+      email: firebaseUser.email || '',
+      organization: '',
+      organizationType: 'NGO',
+      county: 'Tharaka-Nithi',
+      role: 'oversight'
+    };
+    localStorage.setItem(key, JSON.stringify(account));
+    return oversightAccountFrom(firebaseUser, account);
   }
-  const record = accountSnapshot.data() as AccountRequest;
-  if (record.approvalStatus === 'pending') {
-    throw new Error('Your account request is awaiting administrator approval.');
+
+  let record: unknown;
+  try {
+    record = JSON.parse(stored);
+  } catch {
+    throw new Error('The saved oversight profile is invalid. Clear this browser profile and sign in again.');
   }
-  if (record.approvalStatus !== 'approved') {
-    throw new Error('Your account request was not approved. Contact your organization administrator.');
+  if (!isOversightAccount(record) || record.uid !== firebaseUser.uid) {
+    throw new Error('The saved oversight profile does not match this Firebase account.');
   }
-  if (record.role !== 'oversight') {
-    throw new Error('This account does not have oversight access.');
-  }
-  return accountRequestFrom(firebaseUser, record);
+  return oversightAccountFrom(firebaseUser, record);
 };
 
 const accountUser = (firebaseUser: FirebaseUser, role: 'admin'): User => ({
@@ -120,8 +143,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const auth = firebaseAuth;
-    if (!auth || !firestore) {
-      setAuthError('Add the Firebase web app settings to .env to enable organization and administrator sign-in.');
+    if (!auth) {
+      setAuthError('Add the Firebase web app settings to .env to enable sign-in.');
       setIsLoading(false);
       return;
     }
@@ -143,7 +166,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setAuthError(null);
             return;
           }
-          setUser(await readApprovedAccount(firebaseUser));
+          setUser(readOversightAccount(firebaseUser));
           setAuthError(null);
         } catch (error) {
           setUser(null);
@@ -151,7 +174,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           try {
             await signOut(auth);
           } catch (signOutError) {
-            console.error('Could not sign out an unapproved Firebase account:', signOutError);
+            console.error('Could not sign out a Firebase account without a valid profile:', signOutError);
           }
         } finally {
           setIsLoading(false);
@@ -183,7 +206,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     authOperationInProgress.current = true;
     try {
-      const { auth } = requireFirebase();
+      const auth = requireFirebaseAuth();
       const credential = await signInWithEmailAndPassword(auth, email.trim(), password);
       const token = await getIdTokenResult(credential.user, true);
       const isAdmin = token.claims.admin === true;
@@ -192,7 +215,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(accountUser(credential.user, 'admin'));
       } else {
         if (isAdmin) throw new Error('Use the separate administrator sign-in page for this account.');
-        setUser(await readApprovedAccount(credential.user));
+        setUser(readOversightAccount(credential.user));
       }
     } catch (error) {
       if (firebaseAuth?.currentUser) {
@@ -227,38 +250,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     authOperationInProgress.current = true;
     let createdUser: FirebaseUser | null = null;
-    let requestSaved = false;
+    let profileSaved = false;
     try {
-      const { auth, db } = requireFirebase();
+      const auth = requireFirebaseAuth();
       const credential = await createUserWithEmailAndPassword(
         auth,
         registration.email.trim(),
         registration.password
       );
       createdUser = credential.user;
-      await setDoc(doc(db, 'accountRequests', createdUser.uid), {
+      await updateProfile(createdUser, { displayName: registration.name.trim() });
+      const account: OversightAccount = {
         uid: createdUser.uid,
         name: registration.name.trim(),
         email: createdUser.email || registration.email.trim(),
         organization: registration.organization.trim(),
         organizationType: registration.organizationType,
         county: registration.county.trim() || 'Tharaka-Nithi',
-        role: 'oversight',
-        approvalStatus: 'pending',
-        createdAt: serverTimestamp(),
-        reviewedAt: null,
-        reviewedBy: null
-      });
-      requestSaved = true;
-      await signOut(auth);
-      setUser(readCitizenSession());
+        role: 'oversight'
+      };
+      localStorage.setItem(oversightProfileKey(createdUser.uid), JSON.stringify(account));
+      profileSaved = true;
+      setUser(oversightAccountFrom(createdUser, account));
     } catch (error) {
-      if (createdUser && !requestSaved) {
+      if (createdUser && !profileSaved) {
         try {
           await deleteUser(createdUser);
         } catch (cleanupError) {
-          console.error('Could not remove the Firebase account after its Firestore request failed:', cleanupError);
-          throw new Error('The request could not be saved to Firestore, and the new Firebase account could not be removed. Contact the administrator before retrying.');
+          console.error('Could not remove the Firebase account after its local profile could not be saved:', cleanupError);
+          throw new Error('The profile could not be saved in this browser, and the new Firebase account could not be removed. Contact the administrator before retrying.');
         }
       }
       const message = firebaseErrorMessage(error);

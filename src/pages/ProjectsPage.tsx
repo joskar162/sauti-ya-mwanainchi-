@@ -3,6 +3,7 @@ import {
   Search, 
   Filter, 
   MapPin, 
+  CalendarDays,
   Building2, 
   DollarSign, 
   Clock,
@@ -20,7 +21,8 @@ import { Select } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { 
   PROJECT_STATUSES, 
-  FUNDING_TYPES
+  FUNDING_TYPES,
+  formatDate
 } from '@/utils/constants';
 import type { Project, ProjectStatus, FundingType } from '@/types';
 
@@ -245,6 +247,12 @@ const ProjectCard = ({ project, isVerified, onVerify, onClick }: {
             <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
             <span>{project.location}</span>
           </div>
+          {project.launchDate && (
+            <div className="flex items-center gap-2 text-gray-600">
+              <CalendarDays className="w-4 h-4 text-gray-400 flex-shrink-0" />
+              <span>Launched {formatDate(project.launchDate)}</span>
+            </div>
+          )}
           <div className="flex items-center gap-2">
             <StatusPill status={project.fundingType} type="funding" size="sm" />
             <span className="text-gray-600 truncate">{project.funder}</span>
@@ -292,9 +300,6 @@ const ProjectCard = ({ project, isVerified, onVerify, onClick }: {
           <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); onClick(); }}>
             View Details
           </Button>
-          <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); alert('Report issue functionality'); }}>
-            <AlertTriangle className="w-3.5 h-3.5 mr-1" /> Report Issue
-          </Button>
         </div>
       </CardContent>
     </Card>
@@ -329,6 +334,28 @@ const ProjectDetailModal = ({ project, isOpen, onClose, isVerified, onVerify }: 
               <div className="flex justify-between"><dt className="text-gray-500">Contract Value</dt><dd className="text-right">{project.valueKES !== null ? formatCurrency(project.valueKES) : 'Unknown'}</dd></div>
               <div className="flex justify-between"><dt className="text-gray-500">Amount Paid</dt><dd className="text-right">{project.paidKES !== null ? formatCurrency(project.paidKES) : 'Unknown'}</dd></div>
               <div className="flex justify-between"><dt className="text-gray-500">Location</dt><dd className="text-right">{project.location}</dd></div>
+              {project.launchDate && <div className="flex justify-between"><dt className="text-gray-500">Launch Date</dt><dd className="text-right">{formatDate(project.launchDate)}</dd></div>}
+              {project.coordinates
+                && Number.isFinite(project.coordinates.latitude)
+                && project.coordinates.latitude >= -90
+                && project.coordinates.latitude <= 90
+                && Number.isFinite(project.coordinates.longitude)
+                && project.coordinates.longitude >= -180
+                && project.coordinates.longitude <= 180 && (
+                  <div className="flex justify-between">
+                    <dt className="text-gray-500">GPS Location</dt>
+                    <dd>
+                      <a
+                        href={`https://www.google.com/maps?q=${project.coordinates.latitude},${project.coordinates.longitude}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-blue-700 underline"
+                      >
+                        View on map
+                      </a>
+                    </dd>
+                  </div>
+                )}
             </dl>
           </div>
 
@@ -389,9 +416,6 @@ const ProjectDetailModal = ({ project, isOpen, onClose, isVerified, onVerify }: 
               </Button>
               <Button variant="outline" onClick={() => alert('Add internal note functionality')}>
                 <FileText className="w-4 h-4 mr-1" /> Add Internal Note
-              </Button>
-              <Button variant="outline" onClick={() => alert('Report issue functionality')}>
-                <AlertTriangle className="w-4 h-4 mr-1" /> Report Issue
               </Button>
             </div>
           </div>

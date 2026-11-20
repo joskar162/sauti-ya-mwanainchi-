@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   FolderKanban, 
   AlertTriangle, 
@@ -48,7 +49,8 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend,
 export const OversightDashboard = () => {
   const { projects } = useProjects();
   const { user } = useAuth();
-  const { reports, getNewReports, updateReportStatus } = useReports();
+  const { reports } = useReports();
+  const navigate = useNavigate();
   const { needs, expressInterest } = useCommunityNeeds();
   const { isVerified, markVerified } = useVerification();
   const [search, setSearch] = useState('');
@@ -98,7 +100,10 @@ export const OversightDashboard = () => {
       c => c.delayed + c.quality >= 2
     ).length;
 
-    const newReports = getNewReports().length;
+    const newReports = reports.filter(report => (
+      ['New', 'Under review'].includes(report.status)
+      && (report.type === 'project-launch' || report.type === 'project-update')
+    )).length;
 
     return {
       projectsMonitored: projects.length,
@@ -107,9 +112,9 @@ export const OversightDashboard = () => {
       stalledProjects,
       totalPaidOnStalledDelayed: totalPaidStalledDelayed,
       contractorsFlagged,
-      citizenReportsNew: newReports
+      projectReportsPending: newReports
     };
-  }, [needs.length, getNewReports]);
+  }, [projects, needs.length, reports]);
 
   const statusChartData = useMemo(() => {
     const counts = PROJECT_STATUSES.map(status => 
@@ -141,16 +146,16 @@ export const OversightDashboard = () => {
   }, [filteredProjects]);
 
   const latestReports = useMemo(() => 
-    reports.slice(0, 5).sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()),
+    reports
+      .filter(report => report.type === 'project-launch' || report.type === 'project-update')
+      .slice()
+      .sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime())
+      .slice(0, 5),
     [reports]
   );
 
   const handleFlagProject = (project: Project) => {
     alert(`Project "${project.name}" flagged for audit/review. Internal note added.`);
-  };
-
-  const handleVerifyReport = (reportId: string) => {
-    updateReportStatus(reportId, 'Verified', 'Verified by oversight team', user?.name);
   };
 
   const handleExpressInterest = (needId: string) => {
@@ -210,11 +215,11 @@ export const OversightDashboard = () => {
           subtitle="≥2 delayed/quality issues"
         />
         <StatCard 
-          title="New Citizen Reports" 
-          value={stats.citizenReportsNew} 
+          title="Project Reports Awaiting Review" 
+          value={stats.projectReportsPending} 
           icon={FileText} 
           color="blue"
-          subtitle="Awaiting review"
+          subtitle="Launched projects and progress"
         />
       </div>
 
@@ -360,12 +365,12 @@ export const OversightDashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Citizen Reports (Latest)</CardTitle>
+            <CardTitle>Project Accountability Submissions (Latest)</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3 max-h-96 overflow-y-auto">
               {latestReports.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">No citizen reports yet.</p>
+                <p className="text-gray-500 text-center py-8">No project submissions yet.</p>
               ) : (
                 latestReports.map(report => (
                   <div key={report.id} className="p-4 bg-gray-50 rounded-lg border border-gray-100">
@@ -377,20 +382,15 @@ export const OversightDashboard = () => {
                         </div>
                         <p className="text-sm text-gray-600 mb-2">{report.description}</p>
                         <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500">
-                          <span>{report.projectName || 'Community Need'}</span>
+                          <span>{report.projectName || report.projectSubmission?.name || 'Project update'}</span>
                           <span>{report.location}</span>
                           <span>{formatDate(report.submittedAt)}</span>
                           <span>Ref: {report.referenceNumber}</span>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        {report.status === 'New' && (
-                          <Button size="sm" onClick={() => handleVerifyReport(report.id)}>
-                            Mark Verified
-                          </Button>
-                        )}
-                        <Button variant="ghost" size="sm" onClick={() => alert('View report details')}>
-                          View
+                        <Button size="sm" onClick={() => navigate('/citizen-reports')}>
+                          Review submission
                         </Button>
                       </div>
                     </div>
@@ -571,9 +571,6 @@ const ProjectDetailModal = ({ project, isOpen, onClose, isVerified, onVerify }: 
               </Button>
               <Button variant="outline" onClick={() => alert('Add internal note functionality')}>
                 <FileText className="w-4 h-4 mr-1" /> Add Internal Note
-              </Button>
-              <Button variant="outline" onClick={() => alert('Report issue functionality')}>
-                <AlertTriangle className="w-4 h-4 mr-1" /> Report Issue
               </Button>
             </div>
           </div>

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card';
 import { Input, Select } from '@/components/ui/Input';
 
-type LoginMode = 'choose' | 'citizen' | 'oversight-login' | 'oversight-register' | 'pending';
+type LoginMode = 'choose' | 'citizen' | 'oversight-login' | 'oversight-register';
 
 export const LoginPage = () => {
   const { loginCitizen, loginOversight, requestOversightAccount, authError } = useAuth();
@@ -51,7 +51,6 @@ export const LoginPage = () => {
           organizationType,
           county
         });
-        setMode('pending');
       }
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'Could not complete the request.');
@@ -79,14 +78,13 @@ export const LoginPage = () => {
         <Card variant="elevated" padding="lg">
           <CardHeader>
             <CardTitle>
-              {mode === 'pending' ? 'Request received' : mode === 'choose' ? 'Welcome' : mode === 'oversight-register' ? 'Create an oversight account' : 'Sign in'}
+              {mode === 'choose' ? 'Welcome' : mode === 'oversight-register' ? 'Create an oversight account' : 'Sign in'}
             </CardTitle>
             <CardDescription>
               {mode === 'choose' && 'Choose how you want to use Build Kenya.'}
               {mode === 'citizen' && 'Citizens can continue without creating an account.'}
-              {mode === 'oversight-login' && 'Sign in to your approved supervisor, NGO or oversight account.'}
-              {mode === 'oversight-register' && 'Your organization details will be reviewed before access is enabled.'}
-              {mode === 'pending' && 'Your account cannot be used until an administrator approves it.'}
+              {mode === 'oversight-login' && 'Sign in to your supervisor, NGO or oversight account.'}
+              {mode === 'oversight-register' && 'Create an account for your organization.'}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -101,7 +99,7 @@ export const LoginPage = () => {
                     <Users className="w-5 h-5 text-green-800" />
                   </div>
                   <p className="font-semibold text-gray-900">Citizen</p>
-                  <p className="text-sm text-gray-500 mt-1">Browse local projects, report issues and track reports.</p>
+                  <p className="text-sm text-gray-500 mt-1">Track launched projects and submit accountability updates.</p>
                   <p className="text-xs font-medium text-green-800 mt-4">No account needed</p>
                 </button>
                 <button
@@ -114,18 +112,15 @@ export const LoginPage = () => {
                   </div>
                   <p className="font-semibold text-gray-900">Oversight &amp; Funders</p>
                   <p className="text-sm text-gray-500 mt-1">For supervisors, NGOs and oversight organizations.</p>
-                  <p className="text-xs font-medium text-amber-700 mt-4">Account approval required</p>
+                  <p className="text-xs font-medium text-green-800 mt-4">Register anytime</p>
                 </button>
               </div>
             )}
 
-            {mode === 'pending' && (
-              <div className="space-y-4">
-                <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900" role="status">
-                  Your registration is saved. An administrator will review your organization details. You can sign in after approval.
-                </div>
-                <Button className="w-full" variant="outline" onClick={backToRoles}>Back to sign in</Button>
-              </div>
+            {mode === 'choose' && authError && (
+              <p className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800" role="alert">
+                {authError}
+              </p>
             )}
 
             {(mode === 'citizen' || mode === 'oversight-login' || mode === 'oversight-register') && (
@@ -185,7 +180,7 @@ export const LoginPage = () => {
                 )}
                 {mode === 'oversight-register' && (
                   <p className="text-sm text-center text-gray-600">
-                    Already approved?{' '}
+                    Already have an account?{' '}
                     <button type="button" className="font-semibold text-green-800 hover:underline" onClick={() => { setError(''); setMode('oversight-login'); }}>
                       Sign in
                     </button>
@@ -198,7 +193,7 @@ export const LoginPage = () => {
         </Card>
 
         <p className="text-center text-sm text-gray-500 mt-6">
-          Citizen access needs no account. Oversight accounts are approved by administrators.
+          Citizens need no account. Oversight and funder accounts can register and sign in immediately.
         </p>
       </div>
     </div>

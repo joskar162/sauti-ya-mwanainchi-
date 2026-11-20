@@ -10,7 +10,8 @@ import { OversightDashboard } from './pages/OversightDashboard';
 import { ProjectsPage } from './pages/ProjectsPage';
 import { CommunityNeedsPage } from './pages/CommunityNeedsPage';
 import { CitizenReportsPage } from './pages/CitizenReportsPage';
-import { CitizenDashboard, ReportProjectIssuePage, ReportCommunityNeedPage, MyReportsPage } from './pages/CitizenDashboard';
+import { CitizenDashboard, MyReportsPage } from './pages/CitizenDashboard';
+import { SubmitLaunchedProjectPage, SubmitProjectUpdatePage } from './pages/CitizenProjectReports';
 import { AddProjectPage } from './pages/AddProjectPage';
 import { AdminPage } from './pages/AdminPage';
 
@@ -107,8 +108,8 @@ function App() {
                 }>
                   <Route path="/citizen-dashboard" element={<CitizenDashboard />} />
                   <Route path="/citizen/projects" element={<CitizenDashboard />} />
-                  <Route path="/citizen/report-issue" element={<ReportProjectIssuePage />} />
-                  <Route path="/citizen/report-need" element={<ReportCommunityNeedPage />} />
+                  <Route path="/citizen/report-launched-project" element={<SubmitLaunchedProjectPage />} />
+                  <Route path="/citizen/report-project-update" element={<SubmitProjectUpdatePage />} />
                   <Route path="/citizen/my-reports" element={<MyReportsPage />} />
                 </Route>
 

@@ -1,6 +1,5 @@
 import { getApp, getApps, initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -26,11 +25,10 @@ const app = missingFirebaseConfig.length === 0
   : null;
 
 export const firebaseAuth = app ? getAuth(app) : null;
-export const firestore = app ? getFirestore(app) : null;
 
-export const requireFirebase = () => {
-  if (!firebaseAuth || !firestore) {
+export const requireFirebaseAuth = () => {
+  if (!firebaseAuth) {
     throw new Error(`Configure Firebase web app values in .env: ${missingFirebaseConfig.join(', ')}.`);
   }
-  return { auth: firebaseAuth, db: firestore };
+  return firebaseAuth;
 };

@@ -5,10 +5,10 @@ import {
   Users, 
   FileText, 
   PlusCircle,
+  Activity,
   LogOut,
   User,
   ShieldCheck,
-  AlertCircle,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/Button';
@@ -18,15 +18,15 @@ const navigation = {
     { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/projects', label: 'Projects', icon: FolderKanban },
     { path: '/community-needs', label: 'Community Needs', icon: Users },
-    { path: '/citizen-reports', label: 'Citizen Reports', icon: FileText },
+    { path: '/citizen-reports', label: 'Project Accountability Reports', icon: FileText },
     { path: '/add-project', label: 'Add Project', icon: PlusCircle }
   ],
   citizen: [
     { path: '/citizen-dashboard', label: 'My Dashboard', icon: LayoutDashboard },
-    { path: '/citizen/projects', label: 'Projects in My County', icon: FolderKanban },
-    { path: '/citizen/report-issue', label: 'Report Project Issue', icon: AlertCircle },
-    { path: '/citizen/report-need', label: 'Report Community Need', icon: PlusCircle },
-    { path: '/citizen/my-reports', label: 'My Reports', icon: FileText }
+    { path: '/citizen/projects', label: 'Launched Projects', icon: FolderKanban },
+    { path: '/citizen/report-launched-project', label: 'Report a Launched Project', icon: PlusCircle },
+    { path: '/citizen/report-project-update', label: 'Report Project Progress', icon: Activity },
+    { path: '/citizen/my-reports', label: 'My Submissions', icon: FileText }
   ]
 };
 

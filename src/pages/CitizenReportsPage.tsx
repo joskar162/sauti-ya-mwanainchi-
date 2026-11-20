@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { 
   Filter, 
   CheckCircle, 
@@ -8,6 +8,8 @@ import {
 } from 'lucide-react';
 import { useReports } from '@/context/ReportsContext';
 import { useAuth } from '@/context/AuthContext';
+import { useProjects } from '@/context/ProjectsContext';
+import { useVerification } from '@/context/VerificationContext';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from '@/components/ui/Card';
 import { StatusPill } from '@/components/ui/StatusPill';
@@ -16,18 +18,39 @@ import { Select } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { Textarea } from '@/components/ui/Input';
 import { REPORT_STATUSES, formatDate } from '@/utils/constants';
-import type { CitizenReport, ReportStatus } from '@/types';
+import type { CitizenReport, Project, ReportStatus } from '@/types';
+
+const reportTypeLabel = (type: CitizenReport['type']) => {
+  switch (type) {
+    case 'project-launch': return 'Launched project';
+    case 'project-update': return 'Project progress update';
+    case 'project-issue': return 'Previous project issue';
+    case 'community-need': return 'Previous community need';
+  }
+};
+
+const safeEvidenceUrl = (source: string): string | null => {
+  try {
+    const url = new URL(source);
+    return url.protocol === 'http:' || url.protocol === 'https:' ? url.href : null;
+  } catch {
+    return null;
+  }
+};
 
 export const CitizenReportsPage = () => {
   const { user } = useAuth();
   const { reports, updateReportStatus } = useReports();
+  const { projects, addProject, updateProject } = useProjects();
+  const { markVerified } = useVerification();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<ReportStatus | 'all'>('all');
-  const [typeFilter, setTypeFilter] = useState<'all' | 'project-issue' | 'community-need'>('all');
+  const [typeFilter, setTypeFilter] = useState<CitizenReport['type'] | 'all'>('all');
   const [showFilters, setShowFilters] = useState(false);
   const [selectedReport, setSelectedReport] = useState<CitizenReport | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showActionModal, setShowActionModal] = useState<{ report: CitizenReport | null; action: 'verify' | 'dismiss' | 'note' | null }>({ report: null, action: null });
+  const [actionError, setActionError] = useState('');
 
   const filteredReports = useMemo(() => {
     return reports.filter(report => {
@@ -44,40 +67,91 @@ export const CitizenReportsPage = () => {
   }, [search, statusFilter, typeFilter]);
 
   const handleVerify = (report: CitizenReport) => {
+    setActionError('');
     setShowActionModal({ report, action: 'verify' });
   };
 
   const handleDismiss = (report: CitizenReport) => {
+    setActionError('');
     setShowActionModal({ report, action: 'dismiss' });
   };
 
   const handleAddNote = (report: CitizenReport) => {
+    setActionError('');
     setShowActionModal({ report, action: 'note' });
   };
 
   const handleConfirmAction = (response: string) => {
-    if (showActionModal.report && showActionModal.action) {
-      const newStatus = showActionModal.action === 'verify'
-        ? 'Verified'
-        : showActionModal.action === 'dismiss'
-          ? 'Dismissed'
-          : 'Under review';
-      updateReportStatus(showActionModal.report.id, newStatus, response, user?.name);
-      setShowActionModal({ report: null, action: null });
+    const report = showActionModal.report;
+    const action = showActionModal.action;
+    if (!report || !action) return;
+
+    if (action === 'verify' && report.type === 'project-launch') {
+      if (!report.projectSubmission) {
+        setActionError('This project submission is missing its project details and cannot be added to the tracker.');
+        return;
+      }
+      const duplicate = projects.some(project => (
+        project.name.trim().toLowerCase() === report.projectSubmission?.name.trim().toLowerCase()
+        && project.location.trim().toLowerCase() === report.projectSubmission?.location.trim().toLowerCase()
+      ));
+      if (duplicate) {
+        setActionError('A project with this name and location is already in the tracker. Dismiss this duplicate submission.');
+        return;
+      }
+      const verifiedProject = addProject(report.projectSubmission);
+      markVerified(verifiedProject.id);
     }
+
+    if (action === 'verify' && report.type === 'project-update') {
+      if (!report.projectId || !report.reportedStatus) {
+        setActionError('This project update is missing its project or status and cannot be applied.');
+        return;
+      }
+      const currentProject = projects.find(project => project.id === report.projectId);
+      if (!currentProject) {
+        setActionError('The tracked project no longer exists, so this update cannot be applied.');
+        return;
+      }
+      const updates: Partial<Omit<Project, 'id'>> = {
+        status: report.reportedStatus,
+        note: report.description
+      };
+      if (report.reportedPaidKES !== undefined) updates.paidKES = report.reportedPaidKES;
+      if (report.coordinates) updates.coordinates = report.coordinates;
+      if (report.evidence?.length) {
+        updates.sources = [...new Set([...currentProject.sources, ...report.evidence])];
+      }
+      if (!updateProject(report.projectId, updates)) {
+        setActionError('The tracked project could not be updated.');
+        return;
+      }
+    }
+
+    const newStatus = action === 'verify' ? 'Verified' : action === 'dismiss' ? 'Dismissed' : 'Under review';
+    try {
+      updateReportStatus(report.id, newStatus, response, user?.name);
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : 'Could not save the report review.');
+      return;
+    }
+    setActionError('');
+    setShowActionModal({ report: null, action: null });
   };
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Citizen Reports</h1>
-          <p className="text-gray-500">{filteredReports.length} of {reports.length} reports — Review and verify citizen submissions</p>
+          <h1 className="text-2xl font-bold text-gray-900">Project Accountability Reports</h1>
+          <p className="text-gray-500">{filteredReports.length} of {reports.length} submissions — Verify project launches and progress updates</p>
         </div>
         <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)}>
           <Filter className="w-4 h-4 mr-1" /> Filters
         </Button>
       </div>
+
+      {actionError && <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg p-3" role="alert">{actionError}</p>}
 
       {showFilters && (
         <Card variant="outlined" className="mb-4">
@@ -100,11 +174,13 @@ export const CitizenReportsPage = () => {
                 label="Type"
                 options={[
                   {value: 'all', label: 'All Types'},
-                  {value: 'project-issue', label: 'Project Issue'},
-                  {value: 'community-need', label: 'Community Need'}
+                  {value: 'project-launch', label: 'Launched Project'},
+                  {value: 'project-update', label: 'Project Progress Update'},
+                  {value: 'project-issue', label: 'Previous Project Issue'},
+                  {value: 'community-need', label: 'Previous Community Need'}
                 ]}
                 value={typeFilter}
-                onChange={(e) => setTypeFilter(e.target.value as 'all' | 'project-issue' | 'community-need')}
+                onChange={(e) => setTypeFilter(e.target.value as CitizenReport['type'] | 'all')}
               />
             </div>
           </CardContent>
@@ -120,7 +196,7 @@ export const CitizenReportsPage = () => {
                   <th className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider text-xs">Reference</th>
                   <th className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider text-xs">Title</th>
                   <th className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider text-xs">Type</th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider text-xs">Project / Need</th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider text-xs">Project</th>
                   <th className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider text-xs">Location</th>
                   <th className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider text-xs">Submitted</th>
                   <th className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider text-xs">Status</th>
@@ -133,11 +209,11 @@ export const CitizenReportsPage = () => {
                     <td className="px-4 py-3 font-mono text-sm text-gray-600">{report.referenceNumber}</td>
                     <td className="px-4 py-3 font-medium text-gray-900 max-w-xs truncate">{report.title}</td>
                     <td className="px-4 py-3">
-                      <span className={`${report.type === 'project-issue' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'} px-2 py-1 text-xs rounded-full`}>
-                        {report.type === 'project-issue' ? 'Project Issue' : 'Community Need'}
+                      <span className={`${report.type === 'project-launch' || report.type === 'project-update' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'} px-2 py-1 text-xs rounded-full`}>
+                        {reportTypeLabel(report.type)}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-gray-600 max-w-xs truncate">{report.projectName || report.category || '-'}</td>
+                    <td className="px-4 py-3 text-gray-600 max-w-xs truncate">{report.projectName || report.projectSubmission?.name || report.category || '-'}</td>
                     <td className="px-4 py-3 text-gray-600">{report.location}</td>
                     <td className="px-4 py-3 text-gray-600">{formatDate(report.submittedAt)}</td>
                     <td className="px-4 py-3"><StatusPill status={report.status} type="report" size="sm" /></td>
@@ -183,6 +259,7 @@ export const CitizenReportsPage = () => {
       />
 
       <ActionModal 
+        key={`${showActionModal.report?.id || 'none'}-${showActionModal.action || 'none'}`}
         report={showActionModal.report} 
         action={showActionModal.action} 
         isOpen={!!showActionModal.report} 
@@ -201,11 +278,11 @@ const ReportDetailModal = ({ report, isOpen, onClose }: {
   if (!report) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={report.title} size="lg" description={`Ref: ${report.referenceNumber} • ${report.type === 'project-issue' ? 'Project Issue' : 'Community Need'}`}>
+    <Modal isOpen={isOpen} onClose={onClose} title={report.title} size="lg" description={`Ref: ${report.referenceNumber} • ${reportTypeLabel(report.type)}`}>
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div><p className="text-gray-500">Reference</p><p className="font-mono font-medium">{report.referenceNumber}</p></div>
-          <div><p className="text-gray-500">Type</p><p>{report.type === 'project-issue' ? 'Project Issue' : 'Community Need'}</p></div>
+          <div><p className="text-gray-500">Type</p><p>{reportTypeLabel(report.type)}</p></div>
           <div><p className="text-gray-500">Status</p><p><StatusPill status={report.status} type="report" /></p></div>
           <div><p className="text-gray-500">Submitted</p><p>{formatDate(report.submittedAt)}</p></div>
           <div><p className="text-gray-500">Location</p><p>{report.location}</p></div>
@@ -219,6 +296,42 @@ const ReportDetailModal = ({ report, isOpen, onClose }: {
           {report.issueType && (
             <div className="col-span-2"><p className="text-gray-500">Issue Type</p><p>{report.issueType}</p></div>
           )}
+          {report.projectSubmission && (
+            <>
+              <div><p className="text-gray-500">Launch date</p><p>{report.projectSubmission.launchDate || 'Not provided'}</p></div>
+              <div><p className="text-gray-500">Sector</p><p>{report.projectSubmission.sector}</p></div>
+              <div><p className="text-gray-500">Funder</p><p>{report.projectSubmission.funder}</p></div>
+              <div><p className="text-gray-500">Funding type</p><p>{report.projectSubmission.fundingType}</p></div>
+              <div><p className="text-gray-500">Contract value</p><p>{report.projectSubmission.valueKES === null ? 'Unknown' : `KES ${report.projectSubmission.valueKES.toLocaleString()}`}</p></div>
+              <div><p className="text-gray-500">Amount paid</p><p>{report.projectSubmission.paidKES === null ? 'Unknown' : `KES ${report.projectSubmission.paidKES.toLocaleString()}`}</p></div>
+              <div className="col-span-2"><p className="text-gray-500">Reported status</p><p>{report.projectSubmission.status}</p></div>
+            </>
+          )}
+          {report.reportedStatus && (
+            <div className="col-span-2"><p className="text-gray-500">Observed status</p><p>{report.reportedStatus}</p></div>
+          )}
+          {report.reportedPaidKES !== undefined && (
+            <div className="col-span-2"><p className="text-gray-500">Reported amount paid</p><p>KES {report.reportedPaidKES.toLocaleString()}</p></div>
+          )}
+          {report.coordinates
+            && Number.isFinite(report.coordinates.latitude)
+            && report.coordinates.latitude >= -90
+            && report.coordinates.latitude <= 90
+            && Number.isFinite(report.coordinates.longitude)
+            && report.coordinates.longitude >= -180
+            && report.coordinates.longitude <= 180 && (
+              <div className="col-span-2">
+                <p className="text-gray-500">Captured GPS location</p>
+                <a
+                  href={`https://www.google.com/maps?q=${report.coordinates.latitude},${report.coordinates.longitude}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-blue-700 underline"
+                >
+                  {report.coordinates.latitude.toFixed(6)}, {report.coordinates.longitude.toFixed(6)} — view on map
+                </a>
+              </div>
+            )}
           {report.urgency && (
             <div className="col-span-2"><p className="text-gray-500">Urgency</p><p>{report.urgency}</p></div>
           )}
@@ -229,6 +342,35 @@ const ReportDetailModal = ({ report, isOpen, onClose }: {
           <p className="text-gray-500 mb-1">Description</p>
           <p className="text-gray-900 bg-gray-50 p-4 rounded-lg">{report.description}</p>
         </div>
+
+        {report.photos.some(photo => photo.startsWith('data:image/')) && (
+          <div>
+            <p className="text-gray-500 mb-2">Project photos</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {report.photos.filter(photo => photo.startsWith('data:image/')).map((photo, index) => (
+                <a key={`${index}-${photo.slice(0, 32)}`} href={photo} target="_blank" rel="noreferrer">
+                  <img src={photo} alt={`Submitted project evidence ${index + 1}`} className="h-36 w-full rounded-lg object-cover border border-gray-200" />
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {report.evidence && report.evidence.length > 0 && (
+          <div>
+            <p className="text-gray-500 mb-1">Evidence / sources</p>
+            <ul className="list-disc pl-5 space-y-1">
+              {report.evidence.map((source, index) => {
+                const url = safeEvidenceUrl(source);
+                return (
+                  <li key={`${source}-${index}`}>
+                    {url ? <a href={url} target="_blank" rel="noreferrer" className="text-blue-700 underline break-all">{source}</a> : source}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
 
         {report.response && (
           <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
@@ -259,10 +401,9 @@ const ActionModal = ({ report, action, isOpen, onClose, onConfirm }: {
   onClose: () => void;
   onConfirm: (response: string) => void;
 }) => {
-  if (!report || !action) return null;
-
   const [response, setResponse] = useState('');
-
+  useEffect(() => setResponse(''), [report?.id, action]);
+  if (!report || !action) return null;
   const titles = {
     verify: 'Mark as Verified',
     dismiss: 'Dismiss Report',
@@ -270,7 +411,7 @@ const ActionModal = ({ report, action, isOpen, onClose, onConfirm }: {
   };
 
   const descriptions = {
-    verify: `Confirm that this ${report.type === 'project-issue' ? 'project issue' : 'community need'} has been verified.`,
+    verify: `Verify this ${reportTypeLabel(report.type).toLowerCase()}. New project submissions will be added to the tracker; progress updates will update the existing project.`,
     dismiss: `Dismiss this report. It will not appear in active queues.`,
     note: `Add an internal note for oversight team reference.`
   };
