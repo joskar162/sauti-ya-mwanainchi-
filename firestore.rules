@@ -1,0 +1,56 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn() && request.auth.token.admin == true;
+    }
+
+    function ownsAccount(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    match /accountRequests/{uid} {
+      allow create: if ownsAccount(uid)
+        && request.resource.data.keys().hasAll([
+          'uid', 'name', 'email', 'organization', 'organizationType',
+          'county', 'role', 'approvalStatus', 'createdAt', 'reviewedAt', 'reviewedBy'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'uid', 'name', 'email', 'organization', 'organizationType',
+          'county', 'role', 'approvalStatus', 'createdAt', 'reviewedAt', 'reviewedBy'
+        ])
+        && request.resource.data.uid == uid
+        && request.resource.data.role == 'oversight'
+        && request.resource.data.approvalStatus == 'pending'
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 2
+        && request.resource.data.email is string
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.email.size() <= 254
+        && request.resource.data.organization is string
+        && request.resource.data.organization.size() >= 2
+        && request.resource.data.organizationType in ['NGO', 'Supervisor', 'Auditor-General']
+        && request.resource.data.county is string
+        && request.resource.data.createdAt is timestamp
+        && request.resource.data.reviewedAt == null
+        && request.resource.data.reviewedBy == null;
+
+      allow read: if ownsAccount(uid) || isAdmin();
+
+      allow update: if isAdmin()
+        && resource.data.role == 'oversight'
+        && resource.data.approvalStatus == 'pending'
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['approvalStatus', 'reviewedAt', 'reviewedBy'])
+        && request.resource.data.approvalStatus in ['approved', 'rejected']
+        && request.resource.data.reviewedAt is timestamp
+        && request.resource.data.reviewedBy == request.auth.uid;
+
+      allow delete: if false;
+    }
+  }
+}

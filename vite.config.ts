@@ -11,9 +11,18 @@ export default defineConfig({
   },
   server: {
     port: 3000,
-    open: true,
-    proxy: {
-      '/api': 'http://127.0.0.1:3001'
+    open: true
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('/node_modules/@firebase/auth/')) return 'firebase-auth';
+          if (id.includes('/node_modules/@firebase/firestore/')) return 'firebase-firestore';
+          if (id.includes('/node_modules/@firebase/')) return 'firebase-shared';
+          if (id.includes('/node_modules/firebase/')) return 'firebase-core';
+        }
+      }
     }
   }
 })

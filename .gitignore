@@ -7,3 +7,5 @@ data/*.sqlite
 data/*.sqlite-shm
 data/*.sqlite-wal
 data/*.sqlite-journal
+service-account*.json
+*-firebase-adminsdk-*.json

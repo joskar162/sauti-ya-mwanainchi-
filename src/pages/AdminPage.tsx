@@ -1,6 +1,17 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import {
+  collection,
+  doc,
+  getDocs,
+  query,
+  serverTimestamp,
+  Timestamp,
+  updateDoc,
+  where
+} from 'firebase/firestore';
 import { CheckCircle, LogOut, ShieldCheck, XCircle } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { requireFirebase } from '@/lib/firebase';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -10,13 +21,13 @@ interface Registration {
   name: string;
   email: string;
   organization: string;
-  organization_type: string;
+  organizationType: string;
   county: string;
-  created_at: string;
+  createdAt: Timestamp | null;
 }
 
 export const AdminPage = () => {
-  const { user, loginAdmin, logout } = useAuth();
+  const { user, loginAdmin, logout, authError } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [registrations, setRegistrations] = useState<Registration[]>([]);
@@ -27,10 +38,33 @@ export const AdminPage = () => {
     setIsLoading(true);
     setError('');
     try {
-      const response = await fetch('/api/admin/registrations', { credentials: 'include' });
-      const result = await response.json() as { registrations?: Registration[]; error?: string };
-      if (!response.ok) throw new Error(result.error || 'Could not load account requests.');
-      setRegistrations(result.registrations || []);
+      const { db } = requireFirebase();
+      const pendingQuery = query(
+        collection(db, 'accountRequests'),
+        where('approvalStatus', '==', 'pending')
+      );
+      const result = await getDocs(pendingQuery);
+      setRegistrations(result.docs.map(snapshot => {
+        const record = snapshot.data();
+        if (
+          typeof record.name !== 'string' ||
+          typeof record.email !== 'string' ||
+          typeof record.organization !== 'string' ||
+          typeof record.organizationType !== 'string' ||
+          typeof record.county !== 'string'
+        ) {
+          throw new Error(`Account request ${snapshot.id} has invalid profile data.`);
+        }
+        return {
+          id: snapshot.id,
+          name: record.name,
+          email: record.email,
+          organization: record.organization,
+          organizationType: record.organizationType,
+          county: record.county,
+          createdAt: record.createdAt instanceof Timestamp ? record.createdAt : null
+        };
+      }));
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'Could not load account requests.');
     } finally {
@@ -56,16 +90,18 @@ export const AdminPage = () => {
   };
 
   const reviewRequest = async (id: string, decision: 'approved' | 'rejected') => {
+    if (user?.role !== 'admin') {
+      setError('Administrator access is required to review an account.');
+      return;
+    }
     setError('');
     try {
-      const response = await fetch(`/api/admin/registrations/${encodeURIComponent(id)}`, {
-        method: 'PATCH',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ decision })
+      const { db } = requireFirebase();
+      await updateDoc(doc(db, 'accountRequests', id), {
+        approvalStatus: decision,
+        reviewedAt: serverTimestamp(),
+        reviewedBy: user.id
       });
-      const result = await response.json() as { error?: string };
-      if (!response.ok) throw new Error(result.error || 'Could not update the account request.');
       setRegistrations(previous => previous.filter(registration => registration.id !== id));
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'Could not update the account request.');
@@ -87,7 +123,11 @@ export const AdminPage = () => {
             <form onSubmit={handleSignIn} className="space-y-4">
               <Input label="Administrator email" type="email" autoComplete="username" value={email} onChange={event => setEmail(event.target.value)} required />
               <Input label="Password" type="password" autoComplete="current-password" value={password} onChange={event => setPassword(event.target.value)} required />
-              {error && <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg p-3" role="alert">{error}</p>}
+              {(error || authError) && (
+                <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg p-3" role="alert">
+                  {error || authError}
+                </p>
+              )}
               <Button type="submit" className="w-full" loading={isLoading}>Sign in</Button>
             </form>
           </CardContent>
@@ -125,9 +165,11 @@ export const AdminPage = () => {
                   <article key={registration.id} className="rounded-xl border border-gray-200 p-4 sm:p-5 flex flex-col md:flex-row md:items-center gap-4">
                     <div className="flex-1 min-w-0">
                       <h2 className="font-semibold text-gray-900">{registration.organization}</h2>
-                      <p className="text-sm text-gray-600 mt-1">{registration.name} · {registration.organization_type}</p>
+                      <p className="text-sm text-gray-600 mt-1">{registration.name} · {registration.organizationType}</p>
                       <p className="text-sm text-gray-600">{registration.email} · {registration.county}</p>
-                      <p className="text-xs text-gray-400 mt-2">Requested {new Date(registration.created_at).toLocaleString()}</p>
+                      <p className="text-xs text-gray-400 mt-2">
+                        Requested {registration.createdAt?.toDate().toLocaleString() || 'Date unavailable'}
+                      </p>
                     </div>
                     <div className="flex gap-2">
                       <Button size="sm" onClick={() => void reviewRequest(registration.id, 'approved')}>

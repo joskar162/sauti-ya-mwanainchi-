@@ -3,24 +3,16 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently -k -n api,web \"npm:dev:api\" \"npm:dev:web\"",
-    "dev:api": "node server/index.js",
-    "dev:web": "vite",
-    "start:api": "node server/index.js",
+    "dev": "vite",
+    "firebase:grant-admin": "node scripts/grant-firebase-admin.js",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
-    "bcryptjs": "^3.0.3",
-    "better-sqlite3": "^13.2.0",
     "chart.js": "^4.4.1",
-    "cookie-parser": "^1.4.7",
     "date-fns": "^3.3.1",
-    "dotenv": "^18.0.10",
-    "express": "^5.3.0",
-    "express-rate-limit": "^8.7.5",
-    "jsonwebtoken": "^9.0.3",
+    "firebase": "^13.4.0",
     "lucide-react": "^0.312.0",
     "react": "^18.2.0",
     "react-chartjs-2": "^5.2.0",
@@ -33,13 +25,16 @@
     "@types/react-dom": "^18.2.19",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.7.0",
-    "concurrently": "^10.0.7",
     "eslint": "^8.56.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
+    "firebase-admin": "^14.5.1",
     "postcss": "^8.5.33",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.2.2",
     "vite": "^5.1.0"
+  },
+  "overrides": {
+    "@grpc/grpc-js": "^1.14.7"
   }
 }
