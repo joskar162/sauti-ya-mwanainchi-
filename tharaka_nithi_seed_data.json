@@ -1,0 +1,468 @@
+{
+  "projects": [
+    {
+      "id": "TN-001",
+      "name": "Chuka Water Supply Expansion",
+      "sector": "Water",
+      "location": "Chuka",
+      "fundingType": "Government",
+      "funder": "National Treasury / Ministry of Water",
+      "contractor": "Rift Valley Water Works Ltd",
+      "valueKES": 185000000,
+      "paidKES": 142000000,
+      "status": "Delayed",
+      "note": "Pipeline laying 68% complete. Delays due to wayleave acquisition disputes with landowners along the Chuka-Igambang'ombe route. Contractor has requested 6-month extension.",
+      "sources": [
+        "Controller of Budget Quarterly Report Q3 FY2023/24",
+        "Tana Water Works Development Agency Progress Report Oct 2023"
+      ]
+    },
+    {
+      "id": "TN-002",
+      "name": "Tharaka Level 4 Hospital Maternity Wing",
+      "sector": "Health",
+      "location": "Marimanti",
+      "fundingType": "County",
+      "funder": "Tharaka-Nithi County Government",
+      "contractor": "Highland Construction Co. Ltd",
+      "valueKES": 92000000,
+      "paidKES": 92000000,
+      "status": "Completed",
+      "note": "Facility commissioned March 2024. Equipped with 24 beds, theatre, and neonatal unit. Serves Tharaka North and South sub-counties.",
+      "sources": [
+        "Tharaka-Nithi County Health Department Commissioning Report Mar 2024",
+        "Office of the Auditor-General Special Audit Report 2024"
+      ]
+    },
+    {
+      "id": "TN-003",
+      "name": "Gatunga Primary School Classroom Block",
+      "sector": "Education",
+      "location": "Gatunga, Tharaka South",
+      "fundingType": "NGO",
+      "funder": "World Vision Kenya",
+      "contractor": "Meru Builders Ltd",
+      "valueKES": 18500000,
+      "paidKES": 14800000,
+      "status": "On track",
+      "note": "4-classroom block at ring-beam level. Community contributing labour for site clearance. Expected completion December 2024.",
+      "sources": [
+        "World Vision Kenya Annual Report 2023",
+        "Tharaka-Nithi County Education Office Field Visit Report Nov 2023"
+      ]
+    },
+    {
+      "id": "TN-004",
+      "name": "Chiakariga-Igambang'ombe Road Upgrade",
+      "sector": "Transport",
+      "location": "Chiakariga to Igambang'ombe",
+      "fundingType": "Government",
+      "funder": "Kenya Rural Roads Authority (KeRRA)",
+      "contractor": "Paveway Construction Ltd",
+      "valueKES": 340000000,
+      "paidKES": 102000000,
+      "status": "Stalled",
+      "note": "Works stopped at 30% completion (June 2023). Contractor abandoned site citing non-payment of IPCs 4-6. KeRRA has terminated contract and initiated re-tendering. Critical link for farm produce transport.",
+      "sources": [
+        "KeRRA Region 6 Quarterly Report Q2 FY2023/24",
+        "Office of the Auditor-General Report on Stalled Projects 2024",
+        "Daily Nation 'Stalled Roads in Tharaka' 12 July 2024"
+      ]
+    },
+    {
+      "id": "TN-005",
+      "name": "Marimanti Sewerage System Phase 1",
+      "sector": "Water",
+      "location": "Marimanti Town",
+      "fundingType": "Government",
+      "funder": "Water Sector Trust Fund (WSTF)",
+      "contractor": null,
+      "valueKES": 210000000,
+      "paidKES": 15000000,
+      "status": "Quality review",
+      "note": "Design review ongoing. Tender evaluation completed March 2024. Contractor not yet awarded. Concerns raised on design capacity for projected population growth. Only consultancy fees paid to date.",
+      "sources": [
+        "WSTF Project Appraisal Report Feb 2024",
+        "Tana Water Works Board Minutes Mar 2024"
+      ]
+    },
+    {
+      "id": "TN-006",
+      "name": "Kathwana Market Modernization",
+      "sector": "Transport",
+      "location": "Kathwana",
+      "fundingType": "County",
+      "funder": "Tharaka-Nithi County Government",
+      "contractor": "Eastern Highlands Contractors",
+      "valueKES": 65000000,
+      "paidKES": 48750000,
+      "status": "Delayed",
+      "note": "Market shed 80% complete. Delayed by design changes for cold storage section. Original completion August 2023, now projected March 2025.",
+      "sources": [
+        "County Department of Trade Quarterly Report Q4 FY2023/24",
+        "Controller of Budget Implementation Review Report 2024"
+      ]
+    },
+    {
+      "id": "TN-007",
+      "name": "Tunyai Dispensary Upgrade to Health Centre",
+      "sector": "Health",
+      "location": "Tunyai, Tharaka North",
+      "fundingType": "NGO",
+      "funder": "AMREF Health Africa",
+      "contractor": "Mount Kenya Builders",
+      "valueKES": 42000000,
+      "paidKES": 42000000,
+      "status": "Completed",
+      "note": "Upgraded with laboratory, maternity, and pharmacy. Solar power backup installed. Serves 12,000 residents. Handed over September 2023.",
+      "sources": [
+        "AMREF Kenya Annual Report 2023",
+        "Tharaka-Nithi County Health Facility Census 2024"
+      ]
+    },
+    {
+      "id": "TN-008",
+      "name": "Mitheru Secondary School Science Lab",
+      "sector": "Education",
+      "location": "Mitheru, Chuka",
+      "fundingType": "Corporate",
+      "funder": "Safaricom Foundation",
+      "contractor": "Chuka Technical Services",
+      "valueKES": 12500000,
+      "paidKES": 10000000,
+      "status": "On track",
+      "note": "Laboratory structure complete. Equipment procurement underway. Part of Safaricom Foundation's STEM education programme.",
+      "sources": [
+        "Safaricom Foundation Impact Report 2023",
+        "County Education Office Monitoring Visit Report Jan 2024"
+      ]
+    },
+    {
+      "id": "TN-009",
+      "name": "Nkondi Irrigation Scheme Rehabilitation",
+      "sector": "Water",
+      "location": "Nkondi, Tharaka South",
+      "fundingType": "Government",
+      "funder": "National Irrigation Authority",
+      "contractor": "Greenfields Irrigation Ltd",
+      "valueKES": 275000000,
+      "paidKES": 192500000,
+      "status": "Delayed",
+      "note": "Canal lining 55% complete. Delays from community disputes over water allocation schedules. Farmer training component behind schedule.",
+      "sources": [
+        "NIA Project Status Report Q3 FY2023/24",
+        "The Standard 'Irrigation Woes in Tharaka' 3 March 2024"
+      ]
+    },
+    {
+      "id": "TN-010",
+      "name": "Chuka University Teaching Hospital ICT Hub",
+      "sector": "Health",
+      "location": "Chuka University",
+      "fundingType": "Corporate",
+      "funder": "Huawei Technologies Kenya",
+      "contractor": "TechSpace Solutions Ltd",
+      "valueKES": 85000000,
+      "paidKES": 68000000,
+      "status": "On track",
+      "note": "Digital health training facility. Fibre connectivity installed. Equipment installation 70% complete. Partnership with Ministry of Health for telemedicine.",
+      "sources": [
+        "Huawei Kenya CSR Report 2023",
+        "Chuka University Council Minutes Dec 2023"
+      ]
+    },
+    {
+      "id": "TN-011",
+      "name": "Gatue Secondary School Dormitory",
+      "sector": "Education",
+      "location": "Gatue, Maara",
+      "fundingType": "NGO",
+      "funder": "Plan International Kenya",
+      "contractor": null,
+      "valueKES": 38000000,
+      "paidKES": 3800000,
+      "status": "Quality review",
+      "note": "Design phase. Geotechnical survey revealed unstable soil requiring piling. Budget revision submitted. Only design consultancy paid.",
+      "sources": [
+        "Plan International Kenya Programme Update Q1 2024",
+        "County Public Works Geotechnical Report Oct 2023"
+      ]
+    },
+    {
+      "id": "TN-012",
+      "name": "Karingani Cattle Dip Rehabilitation",
+      "sector": "Health",
+      "location": "Karingani, Tharaka North",
+      "fundingType": "County",
+      "funder": "Tharaka-Nithi County Government",
+      "contractor": "Livestock Infrastructure Ltd",
+      "valueKES": 8500000,
+      "paidKES": 8500000,
+      "status": "Completed",
+      "note": "Dip tank rehabilitated, crushing pen repaired, acaricide store built. Benefits 3,200 livestock keepers. Completed January 2024.",
+      "sources": [
+        "County Department of Veterinary Services Report 2024",
+        "Auditor-General County Audit 2023/24"
+      ]
+    },
+    {
+      "id": "TN-013",
+      "name": "Ishiara-Munyi Road Graveling",
+      "sector": "Transport",
+      "location": "Ishiara to Munyi",
+      "fundingType": "Government",
+      "funder": "Kenya Urban Roads Authority (KURA)",
+      "contractor": "Rocksolid Contractors Ltd",
+      "valueKES": 120000000,
+      "paidKES": 36000000,
+      "status": "Stalled",
+      "note": "Works at 15% (bush clearing only). Contractor mobilized but no gravel delivery since November 2023. KURA investigating potential fund diversion. Critical for Ishiara market access.",
+      "sources": [
+        "KURA Region 4 Monitoring Report Feb 2024",
+        "Ethics and Anti-Corruption Commission Preliminary Inquiry Notice 2024"
+      ]
+    },
+    {
+      "id": "TN-014",
+      "name": "Mugwe Primary School Water Harvesting",
+      "sector": "Water",
+      "location": "Mugwe, Chuka",
+      "fundingType": "NGO",
+      "funder": "Water.org",
+      "contractor": "AquaTech Kenya Ltd",
+      "valueKES": 6200000,
+      "paidKES": 6200000,
+      "status": "Completed",
+      "note": "4 x 10,000L tanks, guttering, and filtration installed. Serves 450 pupils. Community trained on maintenance. Completed August 2023.",
+      "sources": [
+        "Water.org Kenya Impact Report 2023",
+        "School Board of Management Minutes Sep 2023"
+      ]
+    },
+    {
+      "id": "TN-015",
+      "name": "Tharaka Technical Training Institute Workshop",
+      "sector": "Education",
+      "location": "Marimanti",
+      "fundingType": "Government",
+      "funder": "State Department for TVET",
+      "contractor": "North Rift Construction Co.",
+      "valueKES": 150000000,
+      "paidKES": 112500000,
+      "status": "On track",
+      "note": "Automotive and welding workshops at roofing stage. Equipment procurement parallel track. Target completion June 2025.",
+      "sources": [
+        "TVET Authority Quarterly Report Q3 FY2023/24",
+        "TTI Principal's Report to Board Mar 2024"
+      ]
+    },
+    {
+      "id": "TN-016",
+      "name": "Kamanyaki Borehole Project",
+      "sector": "Water",
+      "location": "Kamanyaki, Tharaka South",
+      "fundingType": "County",
+      "funder": "Tharaka-Nithi County Government",
+      "contractor": "DeepRock Drilling Ltd",
+      "valueKES": 14500000,
+      "paidKES": 10150000,
+      "status": "Delayed",
+      "note": "Borehole drilled to 280m, yield 8m³/hr. Pump installation delayed by procurement of solar pumping system. Water quality tests passed.",
+      "sources": [
+        "County Water Department Field Report Jan 2024",
+        "Tana Water Works Development Agency Water Quality Certificate 2024"
+      ]
+    },
+    {
+      "id": "TN-017",
+      "name": "Chogoria Hospital ICU Unit",
+      "sector": "Health",
+      "location": "Chogoria, Maara",
+      "fundingType": "NGO",
+      "funder": "Christian Health Association of Kenya (CHAK)",
+      "contractor": "MedBuild Contractors Ltd",
+      "valueKES": 78000000,
+      "paidKES": 58500000,
+      "status": "Quality review",
+      "note": "Structure complete. Medical gas pipeline installation under review by Pharmacy and Poisons Board. ICU equipment procurement on hold pending certification.",
+      "sources": [
+        "CHAK Health Facility Improvement Report 2023",
+        "Pharmacy and Poisons Board Inspection Report Feb 2024"
+      ]
+    },
+    {
+      "id": "TN-018",
+      "name": "Kierera Early Childhood Development Centre",
+      "sector": "Education",
+      "location": "Kierera, Chuka",
+      "fundingType": "Corporate",
+      "funder": "Equity Group Foundation",
+      "contractor": "Chuka Technical Services",
+      "valueKES": 22000000,
+      "paidKES": 22000000,
+      "status": "Completed",
+      "note": "2 classrooms, play area, kitchen, and sanitation block. Child-friendly design. Opened January 2024. Serves 80 children ages 4-6.",
+      "sources": [
+        "Equity Group Foundation Annual Report 2023",
+        "County ECDE Coordinator Monitoring Report Feb 2024"
+      ]
+    },
+    {
+      "id": "TN-019",
+      "name": "Marimanti Solid Waste Management Site",
+      "sector": "Health",
+      "location": "Marimanti",
+      "fundingType": "County",
+      "funder": "Tharaka-Nithi County Government",
+      "contractor": null,
+      "valueKES": 45000000,
+      "paidKES": 4500000,
+      "status": "Quality review",
+      "note": "NEMA approval pending. EIA license application submitted October 2023. Only feasibility study and EIA consultancy paid. Land acquisition contested.",
+      "sources": [
+        "NEMA Tharaka-Nithi County Correspondence 2023-24",
+        "County Environment Department Report Q4 FY2023/24"
+      ]
+    },
+    {
+      "id": "TN-020",
+      "name": "Gakurune Footbridge",
+      "sector": "Transport",
+      "location": "Gakurune River, Tharaka North",
+      "fundingType": "NGO",
+      "funder": "Bridges to Prosperity",
+      "contractor": "SpanBridge Engineering",
+      "valueKES": 18000000,
+      "paidKES": 14400000,
+      "status": "On track",
+      "note": "Abutments complete. Steel truss fabrication off-site. Community labour for approach roads. Installation scheduled October 2024.",
+      "sources": [
+        "Bridges to Prosperity Kenya Update Q1 2024",
+        "Area Chief's Community Mobilization Report Dec 2023"
+      ]
+    },
+    {
+      "id": "TN-021",
+      "name": "Tunta Primary School Perimeter Fence",
+      "sector": "Education",
+      "location": "Tunta, Maara",
+      "fundingType": "County",
+      "funder": "Tharaka-Nithi County Government",
+      "contractor": "SecureLine Fencing Ltd",
+      "valueKES": 9500000,
+      "paidKES": 9500000,
+      "status": "Completed",
+      "note": "Chain-link fence 600m with 2 gates. Completed June 2023. Improved school security and reduced encroachment.",
+      "sources": [
+        "County Education Infrastructure Report 2023",
+        "School BOM Completion Certificate Jul 2023"
+      ]
+    },
+    {
+      "id": "TN-022",
+      "name": "Kamweline Water Pan Desilting",
+      "sector": "Water",
+      "location": "Kamweline, Tharaka South",
+      "fundingType": "Government",
+      "funder": "National Drought Management Authority (NDMA)",
+      "contractor": "EarthMovers Kenya Ltd",
+      "valueKES": 32000000,
+      "paidKES": 24000000,
+      "status": "Delayed",
+      "note": "Desilting 60% complete. Equipment breakdowns and fuel supply delays. Critical for 2,500 livestock during dry season.",
+      "sources": [
+        "NDMA Drought Intervention Report 2024",
+        "County Livestock Office Field Assessment Mar 2024"
+      ]
+    },
+    {
+      "id": "TN-023",
+      "name": "Chuka County Hospital Oxygen Plant",
+      "sector": "Health",
+      "location": "Chuka County Hospital",
+      "fundingType": "Corporate",
+      "funder": "Kenya Pipeline Company Foundation",
+      "contractor": "GasTech Africa Ltd",
+      "valueKES": 95000000,
+      "paidKES": 71250000,
+      "status": "On track",
+      "note": "Plant housing complete. Oxygen generator delivered. Installation and commissioning scheduled August 2024. Will serve 5 facilities in region.",
+      "sources": [
+        "KPC Foundation CSR Report 2023",
+        "Chuka Hospital Management Board Minutes Apr 2024"
+      ]
+    },
+    {
+      "id": "TN-024",
+      "name": "Mukothima Market Shed",
+      "sector": "Transport",
+      "location": "Mukothima, Tharaka North",
+      "fundingType": "County",
+      "funder": "Tharaka-Nithi County Government",
+      "contractor": "Eastern Highlands Contractors",
+      "valueKES": 28000000,
+      "paidKES": 14000000,
+      "status": "Stalled",
+      "note": "Foundation and columns only. Contractor withdrew citing escalating material costs. County legal department reviewing contract. Traders operating in open air.",
+      "sources": [
+        "County Trade Department Report Q1 FY2024/25",
+        "County Assembly Public Investments Committee Minutes Feb 2024"
+      ]
+    },
+    {
+      "id": "TN-025",
+      "name": "Nkubu-Nkondi Rural Electrification",
+      "sector": "Transport",
+      "location": "Nkubu to Nkondi",
+      "fundingType": "Government",
+      "funder": "Rural Electrification and Renewable Energy Corporation (REREC)",
+      "contractor": "PowerLine Constructors Ltd",
+      "valueKES": 180000000,
+      "paidKES": 135000000,
+      "status": "Delayed",
+      "note": "Pole erection 75% complete. Transformer delivery delayed by 4 months. Wayleave issues in forested sections. Household connections pending backbone completion.",
+      "sources": [
+        "REREC Project Monitoring Report Q3 FY2023/24",
+        "Kenya Power Wayleave Acquisition Status Jan 2024"
+      ]
+    }
+  ],
+  "communityNeeds": [
+    {
+      "id": "CN-001",
+      "title": "Kamwathu Village Borehole",
+      "category": "Water",
+      "location": "Kamwathu, Tharaka South",
+      "supportNeeded": "Drilling and equipping of borehole with solar pump, storage tanks, and distribution kiosks",
+      "description": "Kamwathu village (approx. 1,200 residents) relies on seasonal river 5km away. Women and children spend 4-6 hours daily fetching water. Dry season causes severe shortages. Nearest functional borehole is at Kamanyaki (12km). Community has formed water committee and identified land.",
+      "sources": [
+        "Chief Kamwathu Location Report 2024",
+        "Tharaka South Ward Public Participation Minutes Feb 2024"
+      ]
+    },
+    {
+      "id": "CN-002",
+      "title": "Gakurune Dispensary",
+      "category": "Health",
+      "location": "Gakurune, Tharaka North",
+      "supportNeeded": "Construction of dispensary with outpatient, maternity, lab, pharmacy, and staff housing",
+      "description": "Gakurune and surrounding villages (population ~8,000) have no health facility. Nearest is Tunyai Health Centre (18km, poor roads). High maternal mortality risk. Community donated 2 acres. CHVs active but need facility for referrals and deliveries.",
+      "sources": [
+        "Tharaka North Sub-County Health Profile 2023",
+        "Area MCA Ward Development Forum Report 2024"
+      ]
+    },
+    {
+      "id": "CN-003",
+      "title": "Kathangachini ECDE Centre",
+      "category": "Education",
+      "location": "Kathangachini, Chuka",
+      "supportNeeded": "Two classrooms, sanitation block, play area, and feeding programme kitchen",
+      "description": "Current ECDE operates in borrowed church hall. 65 children ages 4-5. No sanitation, no feeding programme. Parents contribute but insufficient. Land available adjacent to primary school. County ECDE policy supports community-initiated centres.",
+      "sources": [
+        "County ECDE Baseline Survey 2023",
+        "Kathangachini Primary School BOM Proposal 2024"
+      ]
+    }
+  ]
+}
