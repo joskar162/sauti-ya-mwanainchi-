@@ -12,6 +12,7 @@ import { CommunityNeedsPage } from './pages/CommunityNeedsPage';
 import { CitizenReportsPage } from './pages/CitizenReportsPage';
 import { CitizenDashboard, ReportProjectIssuePage, ReportCommunityNeedPage, MyReportsPage } from './pages/CitizenDashboard';
 import { AddProjectPage } from './pages/AddProjectPage';
+import { AdminPage } from './pages/AdminPage';
 
 interface ProtectedRouteProps {
   allowedRoles: string[];
@@ -19,7 +20,8 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ allowedRoles, children }: ProtectedRouteProps) => {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
+  if (isLoading) return <div className="p-8 text-center text-gray-500">Loading your session…</div>;
   
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -37,13 +39,37 @@ interface PublicRouteProps {
 }
 
 const PublicRoute = ({ children }: PublicRouteProps) => {
-  const { isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
+  if (isLoading) return <div className="p-8 text-center text-gray-500">Loading your session…</div>;
   
   if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
+    const destination = user?.role === 'citizen'
+      ? '/citizen-dashboard'
+      : user?.role === 'admin'
+        ? '/admin'
+        : '/dashboard';
+    return <Navigate to={destination} replace />;
   }
   
   return <>{children}</>;
+};
+
+const HomeRoute = () => {
+  const { user, isLoading } = useAuth();
+  if (isLoading) return <div className="p-8 text-center text-gray-500">Loading your session…</div>;
+  if (!user) return <Navigate to="/login" replace />;
+  if (user.role === 'citizen') return <Navigate to="/citizen-dashboard" replace />;
+  if (user.role === 'admin') return <Navigate to="/admin" replace />;
+  return <Navigate to="/dashboard" replace />;
+};
+
+const AdminEntry = () => {
+  const { user, isLoading } = useAuth();
+  if (isLoading) return <div className="p-8 text-center text-gray-500">Loading your session…</div>;
+  if (user && user.role !== 'admin') {
+    return <Navigate to={user.role === 'citizen' ? '/citizen-dashboard' : '/dashboard'} replace />;
+  }
+  return <AdminPage />;
 };
 
 function App() {
@@ -60,6 +86,7 @@ function App() {
                     <LoginPage />
                   </PublicRoute>
                 } />
+                <Route path="/admin" element={<AdminEntry />} />
                 
                 <Route element={
                   <ProtectedRoute allowedRoles={['oversight']}>
@@ -85,8 +112,8 @@ function App() {
                   <Route path="/citizen/my-reports" element={<MyReportsPage />} />
                 </Route>
 
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/" element={<HomeRoute />} />
+                <Route path="*" element={<HomeRoute />} />
               </Routes>
             </BrowserRouter>
             </VerificationProvider>

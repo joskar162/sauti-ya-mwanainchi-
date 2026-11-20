@@ -2,7 +2,7 @@ export type FundingType = 'Government' | 'County' | 'NGO' | 'Corporate';
 export type ProjectStatus = 'On track' | 'Delayed' | 'Quality review' | 'Stalled' | 'Completed';
 export type ReportStatus = 'New' | 'Under review' | 'Verified' | 'Dismissed';
 export type IssueType = 'Delayed' | 'Abandoned' | 'Poor quality' | 'Corruption concern' | 'Other';
-export type UserRole = 'oversight' | 'citizen';
+export type UserRole = 'oversight' | 'citizen' | 'admin';
 export type NeedCategory = 'Water' | 'Health' | 'Education' | 'Transport' | 'Other';
 export type UrgencyLevel = 'Low' | 'Medium' | 'High' | 'Critical';
 
@@ -62,6 +62,9 @@ export interface User {
   name: string;
   role: UserRole;
   county?: string;
+  email?: string;
+  organization?: string;
+  organizationType?: 'NGO' | 'Supervisor' | 'Auditor-General';
 }
 
 export interface Contractor {
