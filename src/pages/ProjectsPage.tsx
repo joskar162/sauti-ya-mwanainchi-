@@ -2,34 +2,30 @@ import { useMemo, useState } from 'react';
 import { 
   Search, 
   Filter, 
-  ChevronDown, 
   MapPin, 
   Building2, 
   DollarSign, 
   Clock,
   AlertTriangle,
-  CheckCircle,
-  ExternalLink,
-  FileText
+  FileText,
 } from 'lucide-react';
-import { projects, getUniqueContractors, getUniqueFunders, getUniqueSectors, getUniqueLocations, formatCurrency } from '@/data/projects';
+import { formatCurrency } from '@/data/projects';
+import { useProjects } from '@/context/ProjectsContext';
 import { useVerification } from '@/context/VerificationContext';
 import { Button } from '@/components/ui/Button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Card, CardContent } from '@/components/ui/Card';
 import { StatusPill } from '@/components/ui/StatusPill';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { 
-  STATUS_COLORS, 
-  FUNDING_TYPE_COLORS, 
   PROJECT_STATUSES, 
-  FUNDING_TYPES,
-  formatDate 
+  FUNDING_TYPES
 } from '@/utils/constants';
 import type { Project, ProjectStatus, FundingType } from '@/types';
 
 export const ProjectsPage = () => {
+  const { projects } = useProjects();
   const { isVerified, markVerified } = useVerification();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<ProjectStatus | 'all'>('all');
@@ -56,10 +52,14 @@ export const ProjectsPage = () => {
     });
   }, [search, statusFilter, fundingFilter, sectorFilter, locationFilter]);
 
-  const uniqueContractors = getUniqueContractors();
-  const uniqueFunders = getUniqueFunders();
-  const uniqueSectors = getUniqueSectors();
-  const uniqueLocations = getUniqueLocations();
+  const uniqueSectors = useMemo(
+    () => [...new Set(projects.map(project => project.sector))].sort(),
+    [projects]
+  );
+  const uniqueLocations = useMemo(
+    () => [...new Set(projects.map(project => project.location))].sort(),
+    [projects]
+  );
 
   return (
     <div className="space-y-6">
@@ -232,9 +232,6 @@ const ProjectCard = ({ project, isVerified, onVerify, onClick }: {
   onVerify: () => void;
   onClick: () => void;
 }) => {
-  const statusColors = STATUS_COLORS[project.status];
-  const fundingColors = FUNDING_TYPE_COLORS[project.fundingType];
-
   return (
     <Card variant="outlined" className="h-full transition-shadow hover:shadow-md" onClick={onClick}>
       <CardContent className="p-5 h-full flex flex-col">
@@ -311,6 +308,7 @@ const ProjectDetailModal = ({ project, isOpen, onClose, isVerified, onVerify }: 
   isVerified: boolean;
   onVerify?: () => void;
 }) => {
+  const { projects } = useProjects();
   if (!project) return null;
 
   const otherProjects = project.contractor 

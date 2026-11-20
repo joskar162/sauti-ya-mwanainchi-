@@ -6,22 +6,19 @@ import {
   BookOpen, 
   Truck,
   Plus,
-  Search,
   Filter,
-  DollarSign,
-  Mail,
-  Phone
+  DollarSign
 } from 'lucide-react';
 import { useCommunityNeeds } from '@/context/CommunityNeedsContext';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/Button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Card, CardContent } from '@/components/ui/Card';
 import { StatusPill } from '@/components/ui/StatusPill';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { Textarea } from '@/components/ui/Input';
-import { NEED_CATEGORIES, formatDate } from '@/utils/constants';
+import { NEED_CATEGORIES } from '@/utils/constants';
 import type { CommunityNeed, NeedCategory } from '@/types';
 
 const categoryIcons: Record<NeedCategory, React.ReactNode> = {

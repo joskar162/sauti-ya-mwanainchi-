@@ -1,20 +1,15 @@
 import { useState, useMemo } from 'react';
 import { 
-  FileText, 
-  Search, 
   Filter, 
   CheckCircle, 
   XCircle, 
-  Clock,
   Eye,
-  AlertTriangle,
-  MoreVertical,
-  Download
+  MoreVertical
 } from 'lucide-react';
 import { useReports } from '@/context/ReportsContext';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/Button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Card, CardContent } from '@/components/ui/Card';
 import { StatusPill } from '@/components/ui/StatusPill';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Input';
@@ -62,7 +57,11 @@ export const CitizenReportsPage = () => {
 
   const handleConfirmAction = (response: string) => {
     if (showActionModal.report && showActionModal.action) {
-      const newStatus = showActionModal.action === 'verify' ? 'Verified' : 'Dismissed';
+      const newStatus = showActionModal.action === 'verify'
+        ? 'Verified'
+        : showActionModal.action === 'dismiss'
+          ? 'Dismissed'
+          : 'Under review';
       updateReportStatus(showActionModal.report.id, newStatus, response, user?.name);
       setShowActionModal({ report: null, action: null });
     }

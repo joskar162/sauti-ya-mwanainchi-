@@ -30,15 +30,15 @@ const navigation = {
   ]
 };
 
-export const Sidebar = () => {
+export const Sidebar = ({ open = false, onClose }: { open?: boolean; onClose?: () => void }) => {
   const { user, logout } = useAuth();
   const location = useLocation();
   const isOversight = user?.role === 'oversight';
   const navItems = navigation[isOversight ? 'oversight' : 'citizen'];
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-64 bg-green-900 text-white flex flex-col z-40">
-      <div className="p-6 border-b border-green-800">
+    <aside className={`fixed left-0 top-0 h-full w-64 bg-green-950 text-white flex flex-col z-40 shadow-2xl transition-transform duration-300 lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}>
+      <div className="p-5 border-b border-white/10">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-green-700 flex items-center justify-center">
             <ShieldCheck className="w-6 h-6" />
@@ -59,6 +59,7 @@ export const Sidebar = () => {
             <NavLink
               key={item.path}
               to={item.path}
+              onClick={onClose}
               className={({ isActive }) => `
                 flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200
                 ${isActive 

@@ -3,7 +3,7 @@ import type { CitizenReport } from '@/types';
 
 interface ReportsContextType {
   reports: CitizenReport[];
-  addReport: (report: Omit<CitizenReport, 'id' | 'submittedAt' | 'referenceNumber' | 'status'>) => void;
+  addReport: (report: Omit<CitizenReport, 'id' | 'submittedAt' | 'referenceNumber' | 'status'>) => CitizenReport;
   updateReportStatus: (id: string, status: CitizenReport['status'], response?: string, reviewedBy?: string) => void;
   getReportsByUser: (userId: string) => CitizenReport[];
   getReportsByProject: (projectId: string) => CitizenReport[];
@@ -49,6 +49,7 @@ export const ReportsProvider = ({ children }: { children: ReactNode }) => {
       status: 'New'
     };
     setReports(prev => [newReport, ...prev]);
+    return newReport;
   };
 
   const updateReportStatus = (id: string, status: CitizenReport['status'], response?: string, reviewedBy?: string) => {

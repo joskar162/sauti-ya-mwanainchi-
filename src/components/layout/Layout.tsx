@@ -9,7 +9,7 @@ export const Layout = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Sidebar />
+      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <Header onMenuClick={() => setSidebarOpen(true)} />
       
       <main className="lg:ml-64 pt-16 min-h-[calc(100vh-4rem)]" id="main-content">

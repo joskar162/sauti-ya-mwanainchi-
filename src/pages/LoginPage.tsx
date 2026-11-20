@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ShieldCheck, Users, Building2, User, Heart, Search } from 'lucide-react';
+import { ShieldCheck, Users, Building2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card';

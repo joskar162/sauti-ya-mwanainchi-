@@ -12,7 +12,9 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useReports } from '@/context/ReportsContext';
-import { projects, formatCurrency } from '@/data/projects';
+import { useCommunityNeeds } from '@/context/CommunityNeedsContext';
+import { formatCurrency } from '@/data/projects';
+import { useProjects } from '@/context/ProjectsContext';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { StatusPill } from '@/components/ui/StatusPill';
@@ -21,6 +23,7 @@ import { NEED_CATEGORIES, URGENCY_LEVELS, ISSUE_TYPE_LABELS, formatDate } from '
 import type { Project, IssueType, NeedCategory } from '@/types';
 
 export const CitizenDashboard = () => {
+  const { projects } = useProjects();
   const { user } = useAuth();
   const { getReportsByUser } = useReports();
   const myReports = getReportsByUser(user?.id || '');
@@ -217,6 +220,7 @@ const CitizenProjectCard = ({ project }: { project: Project }) => {
 export const ReportProjectIssuePage = () => {
   const { user } = useAuth();
   const { addReport } = useReports();
+  const { projects } = useProjects();
   const [formData, setFormData] = useState({
     projectId: '', issueType: 'Delayed' as IssueType, description: '', 
     location: '', county: user?.county || 'Tharaka-Nithi', anonymous: false
@@ -235,7 +239,7 @@ export const ReportProjectIssuePage = () => {
       return;
     }
     const project = projects.find((p: Project) => p.id === formData.projectId);
-    addReport({
+    const report = addReport({
       type: 'project-issue',
       projectId: formData.projectId,
       projectName: project?.name,
@@ -248,8 +252,7 @@ export const ReportProjectIssuePage = () => {
       anonymous: formData.anonymous,
       submittedBy: user?.id || 'anonymous'
     });
-    const ref = `BK-${Date.now().toString(36).toUpperCase()}`;
-    setSubmitted({ ref });
+    setSubmitted({ ref: report.referenceNumber });
   };
 
   if (submitted) {
@@ -347,6 +350,7 @@ export const ReportProjectIssuePage = () => {
 export const ReportCommunityNeedPage = () => {
   const { user } = useAuth();
   const { addReport } = useReports();
+  const { addNeed } = useCommunityNeeds();
   const [formData, setFormData] = useState({
     title: '', category: 'Water' as NeedCategory, description: '', 
     location: '', county: user?.county || 'Tharaka-Nithi', urgency: 'Medium' as 'Low' | 'Medium' | 'High' | 'Critical', anonymous: false
@@ -365,7 +369,7 @@ export const ReportCommunityNeedPage = () => {
       setErrors(newErrors);
       return;
     }
-    addReport({
+    const report = addReport({
       type: 'community-need',
       title: formData.title,
       category: formData.category,
@@ -376,8 +380,15 @@ export const ReportCommunityNeedPage = () => {
       anonymous: formData.anonymous,
       submittedBy: user?.id || 'anonymous'
     });
-    const ref = `BK-${Date.now().toString(36).toUpperCase()}`;
-    setSubmitted({ ref });
+    addNeed({
+      title: formData.title,
+      category: formData.category,
+      location: formData.location,
+      supportNeeded: `${formData.urgency} urgency - community support requested`,
+      description: formData.description,
+      sources: ['Citizen report - unverified until reviewed']
+    });
+    setSubmitted({ ref: report.referenceNumber });
   };
 
   if (submitted) {

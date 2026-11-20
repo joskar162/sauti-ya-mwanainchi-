@@ -5,18 +5,12 @@ import {
   Users, 
   Building2, 
   FileText,
-  TrendingUp,
   DollarSign,
   Filter,
-  Search,
-  ChevronDown,
-  MoreVertical,
   Plus,
-  CheckCircle,
-  X,
-  Eye
 } from 'lucide-react';
-import { projects, getUniqueContractors, getUniqueFunders, getUniqueSectors, getUniqueLocations, formatCurrency, formatNumber } from '@/data/projects';
+import { formatCurrency } from '@/data/projects';
+import { useProjects } from '@/context/ProjectsContext';
 import { useAuth } from '@/context/AuthContext';
 import { useReports } from '@/context/ReportsContext';
 import { useCommunityNeeds } from '@/context/CommunityNeedsContext';
@@ -51,9 +45,8 @@ import { Bar, Doughnut } from 'react-chartjs-2';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
-const statusOrder: ProjectStatus[] = ['Stalled', 'Delayed', 'Quality review', 'On track', 'Completed'];
-
 export const OversightDashboard = () => {
+  const { projects } = useProjects();
   const { user } = useAuth();
   const { reports, getNewReports, updateReportStatus } = useReports();
   const { needs, expressInterest } = useCommunityNeeds();
@@ -497,6 +490,7 @@ const ProjectDetailModal = ({ project, isOpen, onClose, isVerified, onVerify }: 
   isVerified: boolean;
   onVerify?: () => void;
 }) => {
+  const { projects } = useProjects();
   if (!project) return null;
 
   const otherProjects = project.contractor 
